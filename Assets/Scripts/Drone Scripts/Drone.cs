@@ -4,12 +4,13 @@
     using System.Collections.Generic;
     using UnityEngine;
     using ROSBridgeLib.interface_msgs;
+    using System.Text;
 
     public class Drone
     {
 
         public GameObject gameObjectPointer; // This is the related game object
-        public char id; // This is the identifier of the drone in the dronesDict and across the ROSBridge
+        public string id; // This is the identifier of the drone in the dronesDict and across the ROSBridge
         public bool selected;
 
         public ArrayList waypoints; // All waypoints held by the drone
@@ -18,6 +19,7 @@
         public int nextWaypointId; // Incrementing counter to give all waypoints a unique ID when combined with the Drone ID
         public Dictionary<string, Waypoint> waypointsDict; // Collection of the waypoints in this drone's path
 
+        IEnumerator<string> droneIdGenerator;
         /// <summary>
         /// Constructor method for Drone class objects
         /// </summary>
@@ -43,9 +45,9 @@
             waypointsDict = new Dictionary<string, Waypoint>();
 
             // Updating the world properties to reflect a new drone being added
-            id = WorldProperties.nextDroneId;
+            id = WorldProperties.nextDroneId.Current;
             WorldProperties.dronesDict.Add(id, this);
-            WorldProperties.nextDroneId++;
+            WorldProperties.nextDroneId.MoveNext();
 
             // Select this drone
             this.Select();

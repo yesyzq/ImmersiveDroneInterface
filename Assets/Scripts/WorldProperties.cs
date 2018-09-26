@@ -3,6 +3,7 @@
     using System.Collections;
     using System.Collections.Generic;
     using System.IO;
+    using System.Text;
     using UnityEditor;
     using UnityEngine;
 
@@ -17,10 +18,10 @@
 
         public static Shader clipShader;
 
-        public static Dictionary<char, Drone> dronesDict;
+        public static Dictionary<string, Drone> dronesDict;
         public static Dictionary<char, GameObject> hoopsDict;
 
-        public static Drone selectedDrone;
+        public static Dictionary<string, Drone> selectedDrones;
 
         public static GameObject worldObject; // Refers to the ground
 
@@ -31,8 +32,8 @@
         public static Vector3 torusModelOffset;
 
         private static float maxHeight;
-        public static char nextDroneId;
 
+        public static IEnumerator<string> nextDroneId;
 
         public static List<GameObject> obstacles;
         public static TextAsset asset; //used in ROSDroneSubscriber
@@ -44,10 +45,10 @@
         // Use this for initialization
         void Start()
         {
-            selectedDrone = null;
-            dronesDict = new Dictionary<char, Drone>(); // Collection of all the drone classObjects
+            selectedDrones = new Dictionary<string, Drone>();
+            dronesDict = new Dictionary<string, Drone>(); // Collection of all the drone classObjects
             hoopsDict = new Dictionary<char, GameObject>(); // Collection of all the hoop gameObjects
-            nextDroneId = 'A'; // Used as an incrementing key for the dronesDict and for a piece of the communication about waypoints across the ROSBridge
+            nextDroneId = generateNextDroneID("A").GetEnumerator(); // Used as an incrementing key for the dronesDict and for a piece of the communication about waypoints across the ROSBridge
             worldObject = gameObject;
             actualScale = new Vector3(1, 1, 1);
             currentScale = new Vector3(1, 1, 1);
@@ -65,6 +66,7 @@
             obstacleids = new HashSet<int>();
             obstacleDistsToPrint = new List<string>();
 
+           
             NewDrone();
         }
 
@@ -102,7 +104,27 @@
             if (!GameObject.FindWithTag("Drone"))
             {
                 Drone newDrone = new Drone(worldObject.transform.position + new Vector3(0, 0.1f, 0));
-                selectedDrone = newDrone;
+                selectedDrones[nextDroneId.Current] = newDrone;
+            }
+        }
+
+        public static IEnumerable<string> generateNextDroneID(string start = "")
+        {
+            StringBuilder chars = start == null ? new StringBuilder() : new StringBuilder(start);
+
+            while (true)
+            {
+                int i = chars.Length - 1;
+                while (i >= 0 && chars[i] == 'Z')
+                {
+                    chars[i] = 'A';
+                    i--;
+                }
+                if (i == -1)
+                    chars.Insert(0, 'A');
+                else
+                    chars[i]++;
+                yield return chars.ToString();
             }
         }
 
@@ -170,17 +192,17 @@
             return yaw;
         }
 
-        public static void FindClosestObstacleAndDist()
+        public static void FindClosestObstacleAndDist(string droneID)
         {
 
             if (WorldProperties.obstacles.Count > 0)
             {
-                closestDist = Vector3.Distance(WorldProperties.selectedDrone.gameObjectPointer.transform.localPosition, WorldProperties.obstacles[0].transform.localPosition);
+                closestDist = Vector3.Distance(WorldProperties.selectedDrones[droneID].gameObjectPointer.transform.localPosition, WorldProperties.obstacles[0].transform.localPosition);
                 closestObstacle = WorldProperties.obstacles[0];
                 float dist;
                 foreach (GameObject obstacle in WorldProperties.obstacles)
                 {
-                    dist = Vector3.Distance(WorldProperties.selectedDrone.gameObjectPointer.transform.localPosition, obstacle.transform.localPosition);
+                    dist = Vector3.Distance(WorldProperties.selectedDrones[droneID].gameObjectPointer.transform.localPosition, obstacle.transform.localPosition);
                     if (dist < closestDist)
                     {
                         closestDist = dist;
