@@ -190,18 +190,28 @@
                 this.gameObjectPointer.GetComponent<DroneProperties>().selectedMaterial;
             this.selected = true;
 
-            WorldProperties.selectedDrone = this;
+            WorldProperties.selectedDrones.Add(this.id, this);
 
             // Check through all other drones and change their materials to deselected
-            foreach (Drone otherDrone in WorldProperties.dronesDict.Values)
-            {
-                if (otherDrone != this)
-                {
-                    otherDrone.gameObjectPointer.transform.Find("group3").Find("Outline").GetComponent<MeshRenderer>().material = 
-                        this.gameObjectPointer.GetComponent<DroneProperties>().deselectedMaterial;
-                    otherDrone.selected = false;
-                }
-            }
+            // This is disabled for now until how the deselection UX mechanism is determined.
+            //foreach (Drone otherDrone in WorldProperties.dronesDict.Values)
+            //{
+            //    if (otherDrone != this)
+            //    {
+            //        otherDrone.gameObjectPointer.transform.Find("group3").Find("Outline").GetComponent<MeshRenderer>().material = 
+            //            this.gameObjectPointer.GetComponent<DroneProperties>().deselectedMaterial;
+            //        otherDrone.selected = false;
+            //    }
+            //}
+        }
+
+        public void Deselect()
+        {
+            WorldProperties.selectedDrones.Remove(this.id);
+
+            this.gameObjectPointer.transform.Find("group3/Outline").GetComponent<MeshRenderer>().material =
+                this.gameObjectPointer.GetComponent<DroneProperties>().selectedMaterial;
+            this.selected = false;
         }
     }
 }

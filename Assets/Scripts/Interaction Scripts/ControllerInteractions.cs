@@ -17,7 +17,7 @@
         public enum ControllerState {IDLE, GRABBING, PLACING_DRONE, PLACING_WAYPOINT, POINTING, SETTING_HEIGHT, DELETING}; // These are the possible values for the controller's state
         public static ControllerState currentControllerState; // We use this to determine what state the controller is in - and what actions are available
 
-        public enum CollisionType {NOTHING, WAYPOINT, LINE, OTHER}; // These are the possible values for objects we could be colliding with
+        public enum CollisionType {NOTHING, WAYPOINT, LINE, DRONE, OTHER}; // These are the possible values for objects we could be colliding with
         public CollisionPair mostRecentCollision;
         private List<CollisionPair> currentCollisions;
 
@@ -84,7 +84,7 @@
             // SELECTION POINTER  
             SelectionPointerChecks();
 
-            if (WorldProperties.selectedDrone != null)
+            if (WorldProperties.selectedDrones.Count == 0)
             {
                 // WAYPOINT GRABBING
                 GrabbingChecks();
@@ -113,27 +113,34 @@
             if (currentCollisions.Count == 0)
             {
                 // We note that there is nothing in the selection zone
-                if (mostRecentCollision.waypoint != null || mostRecentCollision.type != CollisionType.NOTHING)
+                if (mostRecentCollision.type != CollisionType.NOTHING)
                 {
                     mostRecentCollision.waypoint = null;
+                    mostRecentCollision.drone = null;
                     mostRecentCollision.type = CollisionType.NOTHING;
                     //Debug.Log("There is nothing in the grab zone - " + mostRecentCollision);
                 }
             }
 
             // Otherwise, we check if the lastSelected Object is still in the selection zone
-            else if (!currentCollisions.Any(x => x.waypoint == mostRecentCollision.waypoint))
+            else if (!currentCollisions.Any(x => x.Equals(mostRecentCollision)))
             {
-                // If the mostRecentCollision.waypoint isn't in the selection zone anymore, we need to grab the next most recent collision
+                // If the mostRecentCollision isn't in the selection zone anymore, we need to grab the next most recent collision
 
                 // We prioritize the most recent waypoint collision
                 // Because we add to the end of the list, we need to grab the last waypoint on the list
-                CollisionPair possibleWaypointCollision = currentCollisions.FindLast(collision => collision.type == CollisionType.WAYPOINT);
+                CollisionPair possibleCollision = currentCollisions.FindLast(collision => collision.type == CollisionType.WAYPOINT || collision.type == CollisionType.DRONE);
 
-                if (possibleWaypointCollision != null)
+                if (possibleCollision != null)
                 {
-                    mostRecentCollision = possibleWaypointCollision;
-                    //Debug.Log("New mostRecentCollision is a waypoint - " + mostRecentCollision.waypoint.id);
+                    mostRecentCollision = possibleCollision;
+                    if (possibleCollision.type == CollisionType.DRONE)
+                    {
+                        //Debug.Log("New mostRecentCollision is a drone: " + mostRecentCollision.drone.id);
+                    } else if (possibleCollision.type == CollisionType.WAYPOINT)
+                    {
+                        //Debug.Log("New mostRecentCollision is a waypoint - " + mostRecentCollision.waypoint.id);
+                    }
                 }
                 else
                 {
@@ -154,7 +161,7 @@
             if (currentCollider.gameObject.CompareTag("waypoint"))
             {
                 Waypoint collidedWaypoint = currentCollider.gameObject.GetComponent<WaypointProperties>().classPointer;
-                if (!currentCollisions.Any(x => (x.waypoint == collidedWaypoint && x.type == CollisionType.WAYPOINT)))
+                if (!currentCollisions.Any(x => (x.type == CollisionType.WAYPOINT && x.waypoint == collidedWaypoint)))
                 {
                     //Debug.Log("A waypoint is entering the grab zone");
                     
@@ -171,7 +178,7 @@
             {
                 // This is the waypoint at the end of the line (the line points back toward the path origin / previous waypoint)
                 Waypoint lineOriginWaypoint = currentCollider.GetComponent<LineProperties>().originWaypoint;
-                if (!currentCollisions.Any(x => (x.waypoint == lineOriginWaypoint && x.type == CollisionType.LINE)))
+                if (!currentCollisions.Any(x => (x.type == CollisionType.LINE && x.waypoint == lineOriginWaypoint)))
                 {
                     //Debug.Log("A line is entering the grab zone");
                     currentCollisions.Add(new CollisionPair(lineOriginWaypoint, CollisionType.LINE));
@@ -184,6 +191,18 @@
             //{
             //    Debug.Log("Hit the menu");
             //}
+
+            // DRONE COLLISION
+            else if (currentCollider.tag == "Drone") {
+                // Help needed: how to check whether the collider and the drone are the same object.
+                // Currently assuming that the collider and the Drone script are both attached to the same game object.
+                Drone currentDrone = currentCollider.GetComponent<Drone>();
+                if (!currentCollisions.Any(x => (x.type == CollisionType.DRONE && x.drone == currentDrone)))
+                {
+                    //Debug.Log("A drone is entering the grab zone");
+                    currentCollisions.Add(new CollisionPair(currentCollider.gameObject.GetComponent<Drone>()));
+                }
+            }
         }
 
         /// <summary>
@@ -195,18 +214,21 @@
             if (currentCollider.gameObject.CompareTag("waypoint"))
             {
                 Waypoint collidedWaypoint = currentCollider.gameObject.GetComponent<WaypointProperties>().classPointer;
-                currentCollisions.RemoveAll(collision => collision.waypoint == collidedWaypoint &&
-                                            collision.type == CollisionType.WAYPOINT);
+                currentCollisions.RemoveAll(collision => collision.type == CollisionType.WAYPOINT && collision.waypoint == collidedWaypoint);
 
                 //Debug.Log("A waypoint is leaving the grab zone");
-            }
-            if (currentCollider.tag == "Line Collider")
+            } else if (currentCollider.tag == "Line Collider")
             {
                 Waypoint lineOriginWaypoint = currentCollider.GetComponent<LineProperties>().originWaypoint;
-                currentCollisions.RemoveAll(collision => collision.waypoint == lineOriginWaypoint &&
-                                        collision.type == CollisionType.LINE);
+                currentCollisions.RemoveAll(collision => collision.type == CollisionType.LINE && collision.waypoint == lineOriginWaypoint);
 
                 //Debug.Log("A line is leaving the grab zone");
+            } else if (currentCollider.tag == "Drone")
+            {
+                Drone currentDrone = currentCollider.GetComponent<Drone>();
+                currentCollisions.RemoveAll(collision => collision.type == CollisionType.DRONE && collision.drone == currentDrone);
+
+                //Debug.Log("A drone is leaving the grab zone");
             }
         }
 
@@ -525,13 +547,20 @@
         /// </summary>
         public class CollisionPair : IEquatable<CollisionPair>
         {
-            public Waypoint waypoint;
+            public Waypoint waypoint = null;
+            public Drone drone = null;
             public CollisionType type;
 
             public CollisionPair(Waypoint waypoint, CollisionType type)
             {
                 this.waypoint = waypoint;
                 this.type = type;
+            }
+
+            public CollisionPair(Drone drone)
+            {
+                this.drone = drone;
+                this.type = CollisionType.DRONE;
             }
 
             public override bool Equals(object obj)
@@ -546,17 +575,20 @@
 
             public bool Equals(CollisionPair other)
             {
-                if (other.waypoint == this.waypoint && other.type == this.type)
+                if (this.type != other.type)
                 {
-                    return true;
+                    return false;
                 }
-
-                return false;
+                if (this.type == CollisionType.DRONE)
+                {
+                    return this.drone == other.drone;
+                }
+                return this.waypoint == other.waypoint;
             }
 
-            public int GetHashcode()
+            public int GetHashCode()
             {
-                return this.waypoint.GetHashCode() * 17 + this.type.GetHashCode();
+                return ((this.type == CollisionType.DRONE) ? this.drone.GetHashCode() * 17 : this.waypoint.GetHashCode() * 17) + this.type.GetHashCode();
             }
         }
     }
