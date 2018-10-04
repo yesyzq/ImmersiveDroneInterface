@@ -586,7 +586,7 @@
                 return this.waypoint == other.waypoint;
             }
 
-            public int GetHashCode()
+            public override int GetHashCode()
             {
                 return ((this.type == CollisionType.DRONE) ? this.drone.GetHashCode() * 17 : this.waypoint.GetHashCode() * 17) + this.type.GetHashCode();
             }

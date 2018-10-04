@@ -181,8 +181,8 @@
         }
 
         /// <summary>
-        /// Use this to change which drone is selected in the world.
-        /// This also changes all drone aura materials so this drone is the only yellow one.
+        /// Use this to select the drone (and have this change reflected in it's highlight color).
+        /// This no longer unhighlights other drones.
         /// </summary>
         public void Select() {
             // Changes the color of the drone to indicate that it has been selected
@@ -205,6 +205,9 @@
             //}
         }
 
+        /// <summary>
+        /// Use this to deselect a drone and unhighlight it.
+        /// </summary>
         public void Deselect()
         {
             WorldProperties.selectedDrones.Remove(this.id);
