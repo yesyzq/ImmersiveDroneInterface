@@ -16,6 +16,7 @@
 
         void OnClickEvent()
         {
+            Debug.Log("Creating Drone");
             WorldProperties.NewDrone();
         }
     }

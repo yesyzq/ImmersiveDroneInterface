@@ -26,7 +26,10 @@
         {
             // Create gameObject at position
             GameObject baseObject = (GameObject)WorldProperties.worldObject.GetComponent<WorldProperties>().droneBaseObject;
-            gameObjectPointer = Object.Instantiate(baseObject, position, Quaternion.identity);
+
+            Vector3 dronePosition = position + new Vector3(Random.Range(0.2f,0.4f),0, Random.Range(0.2f, 0.4f));
+
+            gameObjectPointer = Object.Instantiate(baseObject, dronePosition, Quaternion.identity);
             gameObjectPointer.GetComponent<DroneProperties>().classPointer = this; // Connect the gameObject back to the classObject
             gameObjectPointer.tag = "Drone";
             gameObjectPointer.name = baseObject.name;

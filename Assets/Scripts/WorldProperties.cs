@@ -101,7 +101,7 @@
         /// </summary>
         public static void NewDrone()
         {
-            if (!GameObject.FindWithTag("Drone"))
+            if (true)//(!GameObject.FindWithTag("Drone"))
             {
                 Drone newDrone = new Drone(worldObject.transform.position + new Vector3(0, 0.1f, 0));
                 selectedDrone = newDrone;
