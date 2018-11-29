@@ -2,6 +2,7 @@
 using System.Text;
 using SimpleJSON;
 using ROSBridgeLib.std_msgs;
+using UnityEngine;
 
 namespace ROSBridgeLib
 {
@@ -15,7 +16,8 @@ namespace ROSBridgeLib
 
             public EnvironmentMsg(JSONNode msg)
             {
-
+                // Debug.Log("hoop msg");
+                // Debug.Log(msg);
                 id_ = msg["transforms"][0]["child_frame_id"];
 
                 x_ = float.Parse(msg["transforms"][0]["transform"]["translation"]["x"]);

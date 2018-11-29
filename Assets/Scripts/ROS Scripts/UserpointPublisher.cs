@@ -7,11 +7,19 @@ using UnityEngine;
 
 public class UserpointPublisher : ROSBridgePublisher
 {
-
+    
     public static string GetMessageTopic()
     {
         return "userpoint";
     }
+
+    /*
+    public static string GetMessageTopic(char id)
+    {
+        Debug.Log("enter topic with id");
+        return "userpoint" + id;
+    }
+    */
 
     public static string GetMessageType()
     {
@@ -22,6 +30,7 @@ public class UserpointPublisher : ROSBridgePublisher
     {
         return msg.ToYAMLString();
     }
+
 }
 
 // To publish to this topic:

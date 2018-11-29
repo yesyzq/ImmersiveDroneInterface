@@ -31,7 +31,7 @@ namespace ISAACS
 			//Individual_DroneUI.transform.position = nextPostion_Indi;
 			//Individual_Drones.Add(droneID, Individual_DroneUI);	
 			//nextPostion_Indi -= new Vector3 (0, 0, -1.0f);
-			Individual_DroneUI_Prefab.GetComponent<Text> ().text += " " + droneID;
+			//Individual_DroneUI_Prefab.GetComponent<Text> ().text += " " + droneID;
 		}
 
 		public void UpdateMenu_Select_Group(string groupID){
@@ -42,7 +42,7 @@ namespace ISAACS
 			Group_Drones.Add(groupID, Group_DroneUI);	
 			nextPostion_Group -= new Vector3 (0, 0, -1.0f);
 			*/
-			Group_DroneUI_Prefab.GetComponent<Text> ().text += " " +groupID;
+			//Group_DroneUI_Prefab.GetComponent<Text> ().text += " " +groupID;
 		}
 
 		public void UpdateMenu_Deselect_Drone(string droneID){

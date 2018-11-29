@@ -8,12 +8,12 @@ using ISAACS;
 using System.IO;
 using UnityEditor;
 
-public class DronePositionSubscriber : ROSBridgeSubscriber
+public class DronePositionSubscriber2 : ROSBridgeSubscriber
 {
 
     public new static string GetMessageTopic()
     {
-        return "drone1/state/position_velocity";
+        return "drone2/state/position_velocity";
         // return "/tf";
 
     }
@@ -35,7 +35,7 @@ public class DronePositionSubscriber : ROSBridgeSubscriber
         DronePositionMsg poseMsg = (DronePositionMsg)msg;
         // Debug.Log("pose msg");
         // Debug.Log(poseMsg);
-        string numID = "B";
+        string numID = "C";
         Drone currentDrone = null;
         if (!WorldProperties.dronesDict.ContainsKey(numID))
         {
@@ -43,7 +43,6 @@ public class DronePositionSubscriber : ROSBridgeSubscriber
             GameObject world = GameObject.FindWithTag("World");
             currentDrone = new Drone(WorldProperties.RosSpaceToWorldSpace(poseMsg._x, poseMsg._y, poseMsg._z), numID);
             WorldProperties.dronesDict[numID] = currentDrone;
-            
         }
 
         else
@@ -92,6 +91,6 @@ public class DronePositionSubscriber : ROSBridgeSubscriber
         WorldProperties.obstacleDistsToPrint.Add(WorldProperties.closestDist.ToString());
     }
 
-        
+
 
 }

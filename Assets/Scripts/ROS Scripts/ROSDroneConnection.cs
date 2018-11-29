@@ -15,10 +15,14 @@ public class ROSDroneConnection : MonoBehaviour
     void Start()
     {
         // This is the IP of the linux computer that is connected to the drone.  
-        ros = new ROSBridgeWebSocketConnection("ws://192.168.0.133", 9090);
+        // ros = new ROSBridgeWebSocketConnection("ws://192.168.0.133", 9090);
+        // ros = new ROSBridgeWebSocketConnection("ws://128.32.43.94", 9090);
+		ros = new ROSBridgeWebSocketConnection("ws://192.168.0.106", 9090);
         ros.AddSubscriber(typeof(ObstacleSubscriber));
         ros.AddSubscriber(typeof(EnvironmentSubscriber));
         ros.AddSubscriber(typeof(DronePositionSubscriber));
+        ros.AddSubscriber(typeof(DronePositionSubscriber2));
+
         ros.AddPublisher(typeof(UserpointPublisher));
         ros.AddServiceResponse(typeof(ROSDroneServiceResponse));
         ros.Connect();
@@ -43,7 +47,9 @@ public class ROSDroneConnection : MonoBehaviour
 
     public void PublishWaypointUpdateMessage(UserpointInstruction msg)
     {
-        //Debug.Log("Published new userpoint instruction: "+ msg.ToYAMLString());
+        // Debug.Log("Published new userpoint instruction: "+ msg.ToYAMLString());
+        // get drone id and publish with id
+        // char id = msg.curr_id[0];
         ros.Publish(UserpointPublisher.GetMessageTopic(), msg);
     }
 

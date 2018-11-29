@@ -27,7 +27,7 @@
         /// Constructor method for Drone class objects
         /// </summary>
         /// <param name="position"> The position at which to instantiate the drone game object. </param>
-        public Drone(Vector3 position)
+        public Drone(Vector3 position, string numID)
         {
             // Create gameObject at position
             GameObject baseObject = WorldProperties.worldObject.GetComponent<WorldProperties>().droneBaseObject;
@@ -51,8 +51,9 @@
             waypointsDict = new Dictionary<string, Waypoint>();
 
             // Updating the world properties to reflect a new drone being added
-            id = WorldProperties.getNextDroneId();
-            WorldProperties.dronesDict.Add(id, this);
+            //id = WorldProperties.getNextDroneId();
+            //WorldProperties.dronesDict.Add(id, this);
+            id = numID;
             Debug.Log("Created new drone with id: " + id);
 
             // Add drone to selection by default.
@@ -88,9 +89,9 @@
                 isGroupWaypoint.Add(false);
 
                 // Send a special Userpoint message marking this as the start
-                UserpointInstruction msg = new UserpointInstruction(
-                    startWaypoint.id, "DRONE", 0, 1, 0, "ADD");
-                WorldProperties.worldObject.GetComponent<ROSDroneConnection>().PublishWaypointUpdateMessage(msg);
+                //UserpointInstruction msg = new UserpointInstruction(
+                //    startWaypoint.id, "DRONE", 0, 1, 0, "ADD");
+                // WorldProperties.worldObject.GetComponent<ROSDroneConnection>().PublishWaypointUpdateMessage(msg);
             } else
             {
                 // Otherwise we can add as normal

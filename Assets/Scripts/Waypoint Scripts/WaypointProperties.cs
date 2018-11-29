@@ -92,6 +92,8 @@
 
         void Update()
         {
+
+          
             // Establishing the previous point in the path. (could be the drone)
             if (classPointer.GetPrevWaypoint() != null)
             {

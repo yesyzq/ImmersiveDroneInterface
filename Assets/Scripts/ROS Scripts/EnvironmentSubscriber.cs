@@ -28,7 +28,7 @@ public class EnvironmentSubscriber : ROSBridgeSubscriber
     public static void CallBack(ROSBridgeMsg msg)
     {
         EnvironmentMsg poseMsg = (EnvironmentMsg)msg;
-        
+        // Debug.Log("hoop" + poseMsg.id_);
         if (poseMsg.id_.Contains("hoop"))
         {
             char numID = poseMsg.id_[poseMsg.id_.Length - 1];
@@ -52,6 +52,6 @@ public class EnvironmentSubscriber : ROSBridgeSubscriber
             currentHoop.transform.localPosition = WorldProperties.RosSpaceToWorldSpace(poseMsg.x_, poseMsg.y_, poseMsg.z_) +
                                                     WorldProperties.torusModelOffset;
             currentHoop.transform.localRotation = new Quaternion(poseMsg.x_rot_+1, poseMsg.y_rot_, poseMsg.z_rot_, poseMsg.w_rot_);
-        }
+        }  
     }
 }

@@ -304,7 +304,7 @@
         {
             if (OVRInput.GetUp(OVRInput.Button.SecondaryThumbstick))
             {
-                new Drone(placePoint.transform.position);
+                new Drone(placePoint.transform.position, "");
             }
         }
 

@@ -81,8 +81,8 @@
             closestDist = -1;
             obstacleids = new HashSet<int>();
             obstacleDistsToPrint = new List<string>();
-
-            NewDrone();
+            
+            // NewDrone();
         }
 
         /// <summary>
@@ -118,7 +118,7 @@
         {
             if (!GameObject.FindWithTag("Drone"))
             {
-                Drone newDrone = new Drone(worldObject.transform.position + new Vector3(0, 0.1f, 0));
+                Drone newDrone = new Drone(worldObject.transform.position + new Vector3(0, 0.1f, 0), "Z");
             }
         }
         /// <summary>
